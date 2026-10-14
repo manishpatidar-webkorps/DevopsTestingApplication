@@ -16,6 +16,30 @@ pipeline {
             }
         }
 
+        // stage("Docker build and push") {
+        //     steps {
+        //         withCredentials([
+        //             usernamePassword(
+        //                 credentialsId: "dockerhubCred",
+        //                 usernameVariable: "dockerHubUser",
+        //                 passwordVariable: "dockerHubPass"
+        //             )
+        //         ]) {
+        //             sh '''
+        //                 set -eu
+
+        //                 echo "$dockerHubPass" | docker login \
+        //                     -u "$dockerHubUser" --password-stdin
+
+        //                 docker buildx build \
+        //                     --platform linux/amd64 \
+        //                     -t "$dockerHubUser/my-app:latest" \
+        //                     --push \
+        //                     .
+        //             '''
+        //         }
+        //     }
+        // }
         stage("Docker build and push") {
             steps {
                 withCredentials([
@@ -25,18 +49,9 @@ pipeline {
                         passwordVariable: "dockerHubPass"
                     )
                 ]) {
-                    sh '''
-                        set -eu
-
-                        echo "$dockerHubPass" | docker login \
-                            -u "$dockerHubUser" --password-stdin
-
-                        docker buildx build \
-                            --platform linux/amd64 \
-                            -t "$dockerHubUser/my-app:latest" \
-                            --push \
-                            .
-                    '''
+                   sh ' echo "$dockerHubPass" | docker login -u "$dockerHubUser" --password-stdin'
+                    sh 'docker build -t "$dockerHubUser/my-app:latest" .'
+                    sh 'docker push "$dockerHubUser/my-app:latest" '
                 }
             }
         }
